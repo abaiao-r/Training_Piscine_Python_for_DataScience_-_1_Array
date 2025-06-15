@@ -1,62 +1,64 @@
-import numpy
-import matplotlib.pyplot
-
+import numpy as np
+import matplotlib.pyplot as plt
 from load_image import ft_load
 
 
-def zoom_image(image: numpy.ndarray, top: int, left: int,
-               height: int, width: int) -> numpy.ndarray:
+def zoom_and_display(img: np.ndarray) -> None:
     """
-    Return a zoomed (sliced) version of the image with one color channel.
+    Extracts a center 400x400 region and displays it in grayscale with axes.
 
-    Args:
-        image (numpy.ndarray): Original image array.
-        top (int): Y-axis starting index.
-        left (int): X-axis starting index.
-        height (int): Height of the zoom area.
-        width (int): Width of the zoom area.
-
-    Returns:
-        numpy.ndarray: Sliced image of shape (height, width, 1).
+    Parameters:
+        img (np.ndarray): The original color image.
     """
-    if image is None:
-        raise ValueError("Error: Input image is None")
-    zoomed = image[top:top + height, left:left + width, 0:1]
-    print(f"New shape after slicing: {zoomed.shape}")
-    print(zoomed)
-    return zoomed
+    try:
+        if img is None:
+            raise ValueError("No image data to process.")
 
+        # Get image dimensions
+        height, width = img.shape[0], img.shape[1]
+        channels = img.shape[2] if img.ndim == 3 else 1
+        print(f"Image dimensions: {width}x{height}")
+        print(f"Number of channels: {channels}")
 
-def display_image(image: numpy.ndarray, image_title: str) -> None:
-    """
-    Display an image with labeled axes using matplotlib.
+        # Choose center crop for zoom: 400x400
+        center_x, center_y = width // 2, height // 2
+        half_crop = 200
+        cropped = img[center_y - half_crop:center_y + half_crop,
+                      center_x - half_crop:center_x + half_crop]
 
-    Args:
-        image (numpy.ndarray): 2D or 3D image array.
-        image_title (str): Title of the displayed image.
-    """
-    matplotlib.pyplot.imshow(image.squeeze(), cmap="gray")
-    matplotlib.pyplot.title(image_title)
-    matplotlib.pyplot.xlabel("X axis (pixels)")
-    matplotlib.pyplot.ylabel("Y axis (pixels)")
-    matplotlib.pyplot.colorbar(label="Pixel intensity")
-    matplotlib.pyplot.grid(False)
-    matplotlib.pyplot.show()
+        # Convert to grayscale (if not already)
+        if cropped.ndim == 3:
+            gray = np.mean(cropped, axis=2).astype(np.uint8)
+        else:
+            gray = cropped
+
+        # Add extra dimension for shape printing if needed
+        zoomed = gray[..., np.newaxis]
+        print(f"New shape after slicing: {zoomed.shape}")
+        print(zoomed)
+
+        # Display image using matplotlib
+        plt.imshow(gray, cmap='gray', extent=[0, 400, 0, 400])
+        plt.title("Zoomed Image (Center 400x400)")
+        plt.xlabel("X Axis")
+        plt.ylabel("Y Axis")
+        plt.grid(False)
+        plt.show()
+
+    except Exception as e:
+        print(f"Error during zoom or display: {e}")
 
 
 def main():
     """
-    Main function to load an image, zoom, and display it.
+    Main function to load an image and zoom into it.
+    Handles all potential errors gracefully.
     """
-    image = ft_load("../animal.jpeg")
-    if image is None:
-        return
-
-    print(image)
-
-    zoomed = zoom_image(image, 100, 300, 400, 400)
-
-    display_image(zoomed, "Zoomed Image (1 channel)")
+    try:
+        img_array = ft_load("../animal.jpeg")
+        zoom_and_display(img_array)
+    except Exception as e:
+        print(f"Unexpected error in main: {e}")
 
 
 if __name__ == "__main__":

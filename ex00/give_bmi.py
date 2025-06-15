@@ -1,7 +1,7 @@
 def give_bmi(
         height: list[int | float],
         weight: list[int | float]
-        ) -> list[float]:
+) -> list[float]:
     """
     Calculate BMI values from lists of heights and weights.
 
@@ -28,6 +28,9 @@ def give_bmi(
         if h <= 0:
             raise ValueError(
                 "Height values must be greater than zero to calculate BMI.")
+        if w <= 0:
+            raise ValueError(
+                "Weight values must be greater than zero to calculate BMI.")
     bmi_values = [w / (h ** 2) for h, w in zip(height, weight)]
     return bmi_values
 
