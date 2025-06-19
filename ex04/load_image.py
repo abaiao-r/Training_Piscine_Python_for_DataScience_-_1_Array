@@ -1,32 +1,35 @@
+import numpy as np
 from PIL import Image
-from numpy import array, ndarray
 
 
-def ft_load(path: str) -> 'ndarray':
+def ft_load(path: str) -> np.ndarray:
     """
-    Loads an image, crops a square from the center, and converts it to grayscale.
-    Args:
-        path: Path to the image file.
+    Loads an image from the given path if it is in JPG or JPEG format.
+
+    Parameters:
+        path (str): The path to the image file.
+
     Returns:
-        NumPy array of the cropped grayscale image.
+        np.ndarray: The image as a NumPy array, or None if an error occurs.
     """
     try:
-        with Image.open(path) as img:
-            img = img.convert("L")
-            width, height = img.size
-            side = min(width, height, 400)
-            left = (width - side) // 2
-            top = (height - side) // 2
-            right = left + side
-            bottom = top + side
-            img_cropped = img.crop((left, top, right, bottom))
-            arr = array(img_cropped)
-            arr = arr.reshape((side, side, 1))
-            print(f"The shape of image is: {arr.shape}")
-            print(arr)
-            return arr
+        img = Image.open(path)
+
+        # Check if image format is JPEG or JPG
+        if img.format not in ("JPEG", "JPG"):
+            print(f"Error: Unsupported image format '{img.format}'. "
+                  + "Only JPG/JPEG supported.")
+            return None
+
+        # Convert image to numpy array
+        arr = np.array(img)
+        print(f"The shape of image is: {arr.shape}")
+        print(arr)
+        return arr
+
     except FileNotFoundError:
         print(f"Error: File '{path}' not found.")
+        return None
     except Exception as e:
         print(f"Error: {e}")
-    return None
+        return None
